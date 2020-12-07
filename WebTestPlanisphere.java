@@ -47,6 +47,7 @@ public class WebTestPlanisphere {
 	int planisphereError;
 	String email;
 	String password;
+	String password2;
 	String username;
 	String rank;
 	String address;
@@ -652,12 +653,14 @@ public class WebTestPlanisphere {
             	commandLocater1 = testConf[2];
             	inputText = testConf[3];
             	waitTime = Integer.valueOf(testConf[7]);
-            	if((inputText.length() == 0)&&(commandLocater1.equals("birthday"))&&(birthday.length != 1)) {
-            		inputText3[0] = birthday[0];
-            		inputText3[1] = birthday[1];
-            		inputText3[2] = birthday[2];
+            	if((inputText.length() != 0)) {
+            		if(birthday.length != 1) {
+                		inputText3[0] = birthday[0];
+                		inputText3[1] = birthday[1];
+                		inputText3[2] = birthday[2];
+                    	birthdaySet(commandLocater1, inputText3, waitTime);
+            		}
             	}
-            	birthdaySet(commandLocater1, inputText3, waitTime);
             	break;
             case("EVENTCHECK"):
             	testTitle = testConf[1];
@@ -741,6 +744,203 @@ public class WebTestPlanisphere {
     	resultFile.close();
     	inputStreamReader.close();
 
+	}
+
+	public void reserveErrorTest(String testCaseFilename, String registUserFilename, String resultFilename) throws IOException, FileNotFoundException, InterruptedException {
+
+    	File file = new File(testCaseFilename);
+    	if (!file.exists()) {
+    		System.out.print("テストケースファイルが存在しません");
+    		return;
+    	}
+    	File file2 = new File(registUserFilename);
+    	if (!file2.exists()) {
+    		System.out.print("ユーザー登録ファイルが存在しません");
+    		return;
+    	}
+
+    	InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file), "SHIFT_JIS");
+    	BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+    	FileWriter resultFile = new  FileWriter(resultFilename, true);
+        PrintWriter pw = new PrintWriter(new BufferedWriter(resultFile));
+
+        String testType;
+		String testCase;
+		String dataList;
+        String[] testConf = {","};
+        String[] entryListData = {","};
+        String commandLocater1;
+        String commandLocater2;
+        String commandLocater3;
+        String testTitle;
+        int waitTime;
+        int entryNumber;
+        String inputText;
+        String inputText2;
+        String inputText3[] = new String[3];
+        String specText;
+        String specText2;
+        String testResult;
+
+    	while ((testCase = bufferedReader.readLine()) != null) {
+    		testConf = testCase.split(",", -1);
+            testType = testConf[0];
+            switch(testType) {
+            case("REGISTDATASET"):
+            	InputStreamReader inputStreamReader2 = new InputStreamReader(new FileInputStream(file2), "SHIFT_JIS");
+        		BufferedReader entryListBufferReader = new BufferedReader(inputStreamReader2);
+            	int dataNumber = Integer.valueOf(testConf[2]);
+        		int cnt = 1;
+            	while ((dataList = entryListBufferReader.readLine()) != null) {
+        			entryListData = dataList.split(",", -1);
+                    if(cnt == 1) {
+                    	cnt += 1;
+                    }else {
+            			entryNumber = Integer.valueOf(entryListData[0]);
+            			if(entryNumber == dataNumber) {
+            				email = entryListData[1];
+            				password = entryListData[2];
+            				password2 = entryListData[3];
+            				username = entryListData[4];
+            				rank = entryListData[5];
+            				address = entryListData[6];
+            				tel = entryListData[7];
+            				gender = entryListData[8];
+            				birthday = entryListData[9].split("/", -1);
+            				notification = entryListData[10];
+            				break;
+            			}
+            		}
+            		cnt += 1;
+            	}
+            	inputStreamReader2.close();
+            	break;
+            case("EVENTTEXTINPUT"):
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+            	inputText = testConf[3];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	if((inputText.length() == 0)&&(commandLocater1.equals("email"))) {
+            		inputText = email;
+            	}
+            	if((inputText.length() == 0)&&(commandLocater1.equals("password"))) {
+            		inputText = password;
+            	}
+            	if((inputText.length() == 0)&&(commandLocater1.equals("password-confirmation"))) {
+            		inputText = password2;
+            	}
+            	if((inputText.length() == 0)&&(commandLocater1.equals("username"))) {
+            		inputText = username;
+            	}
+            	if((inputText.length() == 0)&&(commandLocater1.equals("address"))) {
+            		inputText = address;
+            	}
+            	if((inputText.length() == 0)&&(commandLocater1.equals("tel"))) {
+            		inputText = tel;
+            	}
+            	textSet(commandLocater1, inputText,waitTime);
+            	break;
+            case("EVENTBIRTHDAYINPUT"):
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+            	inputText = testConf[3];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	if((inputText.length() != 0)) {
+            		if(birthday.length != 1) {
+                		inputText3[0] = birthday[0];
+                		inputText3[1] = birthday[1];
+                		inputText3[2] = birthday[2];
+                    	birthdaySet(commandLocater1, inputText3, waitTime);
+            		}
+            	}
+            	break;
+            case("EVENTCHECK"):
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+            	inputText = testConf[3];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	if((inputText.length() == 0)&&(commandLocater1.equals("rank"))) {
+            		commandLocater1 = commandLocater1 + "-" + rank;
+            	}
+            	eventid(commandLocater1, waitTime);
+
+            	break;
+            case("EVENTDROPDOWN"):
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+            	inputText = testConf[3];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	if(inputText.length() == 0) {
+            		inputText = gender;
+            	}
+            	dropdownSelectByText(commandLocater1, inputText, waitTime);
+
+            	break;
+            case("EVENTCHECKBOX"):
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+            	inputText = testConf[3];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	if((inputText.length() == 0)&&(notification.equals("yes"))) {
+            		eventid(commandLocater1, waitTime);
+            	}
+
+            	break;
+            case("EVENTLINK"):
+            	commandLocater1 = testConf[2];
+                waitTime = Integer.valueOf(testConf[7]);
+                eventlink(commandLocater1, waitTime);
+                break;
+            case("EVENTCSSSELECTOR"):
+            	commandLocater1 = testConf[2];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	eventCSS(commandLocater1, waitTime);
+
+            	break;
+            case("TESTLOGIN"):
+
+            	commandLocater1 = testConf[1];
+            	commandLocater2 = testConf[2];
+            	commandLocater3 = testConf[3];
+            	inputText = testConf[4];
+            	inputText2 = testConf[5];
+            	specText = testConf[6];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	if((inputText.length() == 0)&&(inputText2.length() == 0)) {
+            		inputText = email;
+            		inputText2 = password;
+            	}
+            	testResult = testLogin(commandLocater1, commandLocater2, commandLocater3, inputText, inputText2, specText, waitTime);
+            	System.out.println(testResult);
+            	pw.println(testResult);
+            	break;
+            case("REGISTEXIT"):
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[3];
+            	specText = testConf[4];
+            	specText2 = testConf[5];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	testResult = testRegistExit(testTitle, commandLocater1, specText, specText2, waitTime);
+            case("TESTTEXTX"):
+                testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+                specText = testConf[3];
+                waitTime = Integer.valueOf(testConf[7]);
+                testResult = testTextX(commandLocater1, specText, waitTime, testTitle);
+                System.out.println(testResult);
+                pw.println(testResult);
+            	break;
+
+            default:
+            }
+            if (planisphereError == 1) {
+//  		    	break;
+            }
+
+    	}
+    	pw.close();
+    	resultFile.close();
+    	inputStreamReader.close();
 	}
 
 
@@ -1501,24 +1701,20 @@ public class WebTestPlanisphere {
 	}
 
 	private void birthdaySet(String commandLocater1, String[] inputText3, int waitTime) throws InterruptedException {
-        if(birthday.length == 1) {
-
-        }else {
-        		WebElement inputBox = webDriver.findElement(By.id(commandLocater1));
-        		wait.until(ExpectedConditions.elementToBeClickable(inputBox));
-        		inputBox.clear();
-        		Thread.sleep(waitTime);
-        		inputBox.sendKeys(inputText3[0]);
-        		Thread.sleep(waitTime);
-        		inputBox.sendKeys(Keys.RIGHT);
-        		Thread.sleep(waitTime);
-        		inputBox.sendKeys(inputText3[1]);
-        		Thread.sleep(waitTime);
-        		inputBox.sendKeys(Keys.RIGHT);
-        		Thread.sleep(waitTime);
-        		inputBox.sendKeys(inputText3[2]);
-        		Thread.sleep(waitTime);
-        }
+		WebElement inputBox = webDriver.findElement(By.id(commandLocater1));
+		wait.until(ExpectedConditions.elementToBeClickable(inputBox));
+		inputBox.clear();
+		Thread.sleep(waitTime);
+		inputBox.sendKeys(inputText3[0]);
+		Thread.sleep(waitTime);
+		inputBox.sendKeys(Keys.RIGHT);
+		Thread.sleep(waitTime);
+		inputBox.sendKeys(inputText3[1]);
+		Thread.sleep(waitTime);
+		inputBox.sendKeys(Keys.RIGHT);
+		Thread.sleep(waitTime);
+		inputBox.sendKeys(inputText3[2]);
+		Thread.sleep(waitTime);
 	}
 
 	private void dropdownSelectByText(String commandLocater1, String inputText, int waitTime) throws InterruptedException {
@@ -1624,6 +1820,36 @@ public class WebTestPlanisphere {
         		resultText = testDate + ", " + testTitle + ", :<ChecBox is not Selected. Test success>";
         	}
         }
+		return resultText;
+	}
+
+	private String testTextX(String commandLocater1, String specText, int waitTime, String testTitle) throws InterruptedException {
+		String regex;
+		String visibleText;
+		String resultText;
+		Date dt = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+		WebElement elementPos = webDriver.findElement(By.xpath(commandLocater1));
+		Actions actions = new Actions(webDriver);
+		actions.moveToElement(elementPos);
+		actions.perform();
+		Thread.sleep(waitTime);
+
+        WebElement element = webDriver.findElement(By.xpath(commandLocater1));
+        wait.until(ExpectedConditions.visibilityOf(element));
+        visibleText = element.getText();
+        resultText = testTitle + ", " + "TestResult: " + visibleText + ", Spec: " + specText;
+        ;
+ 		Pattern p2 = Pattern.compile(visibleText);
+ 		Matcher m2 = p2.matcher(specText);
+ 		if (m2.find()) {
+ 			resultText = sdf.format(dt) + ", " + resultText + " :<Visible Text success>";
+ 		} else {
+ 			resultText = sdf.format(dt) + ", " + resultText + " :<Visible Text failed>";
+ 			planisphereError = 1;
+ 		}
+        Thread.sleep(waitTime);
 		return resultText;
 	}
 
@@ -1970,6 +2196,7 @@ public class WebTestPlanisphere {
  		}
 		return resultText;
 	}
+
 
 
 
