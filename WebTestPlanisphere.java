@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -746,7 +747,7 @@ public class WebTestPlanisphere {
 
 	}
 
-	public void reserveErrorTest(String testCaseFilename, String registUserFilename, String resultFilename) throws IOException, FileNotFoundException, InterruptedException {
+	public void registErrorTest(String testCaseFilename, String registUserFilename, String resultFilename) throws IOException, FileNotFoundException, InterruptedException {
 
     	File file = new File(testCaseFilename);
     	if (!file.exists()) {
@@ -941,6 +942,101 @@ public class WebTestPlanisphere {
     	pw.close();
     	resultFile.close();
     	inputStreamReader.close();
+	}
+
+	public void stayPlanCheck(String testCaseFilename, String stayPlanFilename, String resultFilename) throws IOException, FileNotFoundException, InterruptedException {
+		String planVisible[][] = new String[10][2];
+
+		File file = new File(testCaseFilename);
+    	if (!file.exists()) {
+    		System.out.print("テストケースファイルが存在しません");
+    		return;
+    	}
+    	File file2 = new File(stayPlanFilename);
+    	if (!file2.exists()) {
+    		System.out.print("宿泊プラン一覧ファイルが存在しません");
+    		return;
+    	}
+
+        String testType;
+		String testCase;
+        String[] testConf = {","};
+        String commandLocater1;
+        String commandLocater2;
+        String commandLocater3;
+        String testTitle;
+        String inputText;
+        int waitTime;
+        String testResult;
+        int dataID = 0;
+
+    	InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file), "SHIFT_JIS");
+    	BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+    	FileWriter resultFile = new  FileWriter(resultFilename, true);
+        PrintWriter pw = new PrintWriter(new BufferedWriter(resultFile));
+
+    	while ((testCase = bufferedReader.readLine()) != null) {
+    		testConf = testCase.split(",", -1);
+            testType = testConf[0];
+            switch(testType) {
+            case("PLANDATASET"):
+            	InputStreamReader planContent = new InputStreamReader(new FileInputStream(file2), "SHIFT_JIS");
+        		BufferedReader planContentBuffer = new BufferedReader(planContent);
+        		String dataList;
+        		String[] entryListData = {","};
+        		dataID = 0;
+        		while ((dataList = planContentBuffer.readLine()) != null) {
+        			if(dataID == 0) {
+        				dataID += 1;
+        			}else {
+        				entryListData = dataList.split(",", -1);
+        				planVisible[dataID - 1][0] = entryListData[1];
+        				planVisible[dataID - 1][1] = entryListData[2];
+        				dataID += 1;
+        			}
+        		}
+        		planContentBuffer.close();
+            	break;
+            case("EVENTLINK"):
+            	commandLocater1 = testConf[2];
+                waitTime = Integer.valueOf(testConf[7]);
+                eventlink(commandLocater1, waitTime);
+                break;
+            case("EVENTID"):
+            	commandLocater1 = testConf[2];
+                waitTime = Integer.valueOf(testConf[7]);
+                eventid(commandLocater1, waitTime);
+                break;
+            case("EVENTTEXTINPUT"):
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+            	inputText = testConf[3];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	textSet(commandLocater1, inputText,waitTime);
+            	break;
+            case("EVENTCSSSELECTOR"):
+            	commandLocater1 = testConf[2];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	eventCSS(commandLocater1, waitTime);
+            	break;
+            case("TESTCONTENTSLIST"):
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	testResult = testContentsList(testTitle, commandLocater1, dataID, planVisible, waitTime);
+            	System.out.println(testResult);
+            	pw.println(testResult);
+            	break;
+            default:
+            }
+            if (planisphereError == 1) {
+//  		    	break;
+            }
+    	}
+    	pw.close();
+    	resultFile.close();
+    	inputStreamReader.close();
+
 	}
 
 
@@ -2197,6 +2293,33 @@ public class WebTestPlanisphere {
 		return resultText;
 	}
 
+
+	private String testContentsList(String testTitle, String commandLocater1, int dataCount, String[][] planVisible, int waitTime) throws InterruptedException {
+		String resultText;
+		Date dt = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		resultText = sdf.format(dt) + ", " + testTitle;
+
+		String targetContent;
+		List<WebElement> contentsList = webDriver.findElements(By.className(commandLocater1));
+
+		for(WebElement content : contentsList) {
+			targetContent = content.getText();
+			for(int c = 0; c < dataCount - 1; c++) {
+				if(planVisible[c][0].equals(targetContent)) {
+					if(planVisible[c][1].equals("yes")) {
+						resultText = resultText + ", " + planVisible[c][0] + " :<content success>";
+					}
+					if(planVisible[c][1].equals("no")) {
+						resultText = resultText + ", " + planVisible[c][0] + " :<content fail>";
+						planisphereError = 1;
+					}
+				}
+			}
+		}
+		Thread.sleep(waitTime);
+		return resultText;
+	}
 
 
 
