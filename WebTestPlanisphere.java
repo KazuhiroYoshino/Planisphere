@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +35,7 @@ public class WebTestPlanisphere {
     WebDriver webDriver;
     WebDriverWait wait;
 	String testDate;
+	String tommorowDate;
 	Date dt;
 	int weekEnd;
 	int termValue;
@@ -56,6 +58,7 @@ public class WebTestPlanisphere {
 	String gender;
 	String[] birthday = {"//"};
 	String notification;
+	String contact;
 
 	private boolean acceptNextAlert = true;
 
@@ -135,6 +138,8 @@ public class WebTestPlanisphere {
         int waitTime;
         String inputText;
         String testResult;
+        String window1 = null;
+        String window2 = null;
 
     	while ((testCase = bufferedReader.readLine()) != null) {
     		testConf = testCase.split(",", -1);
@@ -149,6 +154,23 @@ public class WebTestPlanisphere {
                 testResult = testToday(testTitle, commandLocater1, commandLocater2, commandLocater3, waitTime);
                 System.out.println(testResult);
                 pw.print(testResult);
+                break;
+            case("TESTTOMORROW"):
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	testResult = testTomorrow(testTitle, commandLocater1, waitTime);
+            	System.out.println(testResult);
+            	pw.print(testResult);
+            	break;
+            case("TESTTEXTID"):
+            	commandLocater1 = testConf[2];
+                testTitle = testConf[1];
+                inputText = testConf[3];
+                waitTime = Integer.valueOf(testConf[7]);
+                testResult = testTextID(commandLocater1, inputText, waitTime, testTitle);
+                System.out.println(testResult);
+                pw.println(testResult);
                 break;
             case("TESTTEXTBOX"):
             	testTitle = testConf[1];
@@ -189,6 +211,43 @@ public class WebTestPlanisphere {
                 waitTime = Integer.valueOf(testConf[7]);
                 eventlink(commandLocater1, waitTime);
                 break;
+            case("EVENTLINKHREF"):
+            	commandLocater1 = testConf[2];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	eventhref(commandLocater1, waitTime);
+            	break;
+            case("TESTDROPDOWNID"):
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+            	inputText = testConf[3];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	testResult = testDropDownSelect(testTitle, commandLocater1, inputText, waitTime);
+            	System.out.println(testResult);
+            	pw.print(testResult);
+            	break;
+            case("REFRESH"):
+        		webDriver.navigate().refresh();
+        		dt = new Date();
+        		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    	    	testDate = sdf.format(dt);
+        		Thread.sleep(5000);
+            	break;
+            case("PARENT"):
+                Set<String> set = webDriver.getWindowHandles();
+                java.util.Iterator<String> it = set.iterator();
+                window1 = it.next();
+                window2 = it.next();
+                webDriver.switchTo().window(window1);
+            	break;
+            case("CHILD"):
+            	webDriver.switchTo().window(window2);
+            	break;
+            case("CHILDCLOSE"):
+            	webDriver.close();
+            	break;
+            case("PARENTACTIVE"):
+            	webDriver.switchTo().window(window1);
+            	break;
 
             default:
             }
@@ -229,6 +288,8 @@ public class WebTestPlanisphere {
         int price;
         String testResult;
         String indicaterValueSpec;
+        String window1 = null;
+        String window2 = null;
 
     	while ((testCase = bufferedReader.readLine()) != null) {
     		testConf = testCase.split(",", -1);
@@ -237,10 +298,10 @@ public class WebTestPlanisphere {
             case("EVENTWEEKDAY"):
             	testTitle = testConf[1];
                 commandLocater1 = testConf[2];
-                commandLocater2 = testConf[3];
-                commandLocater3 = testConf[4];
+
+
                 waitTime = Integer.valueOf(testConf[7]);
-                weekday(testTitle, commandLocater1, commandLocater2, commandLocater3, waitTime);
+                weekday(testTitle, commandLocater1, waitTime);
                 weekEnd = 0;
                 dateFromSet();
                 break;
@@ -335,6 +396,34 @@ public class WebTestPlanisphere {
                 waitTime = Integer.valueOf(testConf[7]);
                 brankInput(commandLocater3, waitTime);
             	break;
+            case("EVENTTEXTINPUT"):
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+            	inputText = testConf[3];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	if((inputText.length() != 0)) {
+            		textSet(commandLocater1, inputText,waitTime);
+            	}
+            	break;
+            case("EVENTCHECKBOX"):
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+            	inputText = testConf[3];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	if(inputText.equals("on")) {
+            		eventid(commandLocater1, waitTime);
+            	}
+            	break;
+            case("EVENTDROPDOWN"):
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+            	inputText = testConf[3];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	if(inputText.length() == 0) {
+            		inputText = gender;
+            	}
+            	dropdownSelectByText(commandLocater1, inputText, waitTime);
+            	break;
             case("EVENTTERM"):
             	commandLocater1 = testConf[2];
         	    setText = testConf[3];
@@ -391,11 +480,21 @@ public class WebTestPlanisphere {
                 waitTime = Integer.valueOf(testConf[7]);
                 eventid(commandLocater1, waitTime);
             	break;
+            case("EVENTX"):
+            	commandLocater1 = testConf[2];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	eventx(commandLocater1, waitTime);
+            	break;
             case("EVENTLINK"):
             	commandLocater1 = testConf[2];
                 waitTime = Integer.valueOf(testConf[7]);
                 eventlink(commandLocater1, waitTime);
         	    break;
+            case("EVENTLINKHREF"):
+            	commandLocater1 = testConf[2];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	eventhref(commandLocater1, waitTime);
+            	break;
             case("TESTALART"):
             	testTitle = testConf[1];
             	inputText = testConf[4];
@@ -416,11 +515,11 @@ public class WebTestPlanisphere {
             case("TESTTERM"):
             	testTitle = testConf[1];
                 commandLocater1 = testConf[2];
-                commandLocater2 = testConf[3];
-                commandLocater3 = testConf[4];
+
+
                 waitTime = Integer.valueOf(testConf[7]);
                 term = termValue + termValueWeekEnd;
-                testResult = testTerm(testTitle, commandLocater1, commandLocater2, commandLocater3, term, waitTime);
+                testResult = testTerm(testTitle, commandLocater1, term, waitTime);
                 System.out.println(testResult);
                 pw.print(testResult);
                 break;
@@ -499,7 +598,6 @@ public class WebTestPlanisphere {
                     pw.print(testResult);
                 }
             	break;
-
             case("TESTTEXTBOX"):
             	testTitle = testConf[1];
                 commandLocater1 = testConf[2];
@@ -523,7 +621,16 @@ public class WebTestPlanisphere {
                 testTitle = testConf[1];
                 indicaterValueSpec = testConf[3];
                 waitTime = Integer.valueOf(testConf[7]);
-                testResult = testIndicaterID(commandLocater1, indicaterValueSpec, waitTime, testTitle);
+                testResult = testTextID(commandLocater1, indicaterValueSpec, waitTime, testTitle);
+                System.out.println(testResult);
+                pw.println(testResult);
+                break;
+            case("TESTTEXTX"):
+            	commandLocater1 = testConf[2];
+                testTitle = testConf[1];
+                indicaterValueSpec = testConf[3];
+                waitTime = Integer.valueOf(testConf[7]);
+                testResult = testTextX(commandLocater1, indicaterValueSpec, waitTime, testTitle);
                 System.out.println(testResult);
                 pw.println(testResult);
                 break;
@@ -537,6 +644,31 @@ public class WebTestPlanisphere {
                 weekEnd = 0;
                 dateFromSet();
             	break;
+            case("EVENTCONTACT"):
+            	contact = "";
+            	testTitle = testConf[1];
+            	commandLocater1 = testConf[2];
+            	contact = testConf[3];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	if((contact.length() != 0)) {
+            		inputText = contact;
+            		textSet(commandLocater1, inputText,waitTime);
+            	}
+            	break;
+            case("TESTCONTACT"):
+            	commandLocater1 = testConf[2];
+            	testTitle = testConf[1];
+            	if(contact.length() == 0) {
+            		indicaterValueSpec = testConf[3];
+            	}else {
+            		indicaterValueSpec = testConf[3] + "：" + contact;
+            	}
+            	waitTime = Integer.valueOf(testConf[7]);
+            	testResult = testTextID(commandLocater1, indicaterValueSpec, waitTime, testTitle);
+            	System.out.println(testResult);
+            	pw.println(testResult);
+            	break;
+
             case("REFRESH"):
         		webDriver.navigate().refresh();
         		dt = new Date();
@@ -544,6 +676,30 @@ public class WebTestPlanisphere {
     	    	testDate = sdf.format(dt);
         		Thread.sleep(5000);
             	break;
+            case("PARENT"):
+                Set<String> set = webDriver.getWindowHandles();
+                java.util.Iterator<String> it = set.iterator();
+                window1 = it.next();
+                window2 = it.next();
+                webDriver.switchTo().window(window1);
+            	break;
+            case("CHILD"):
+            	webDriver.switchTo().window(window2);
+            	break;
+            case("CHILDCLOSE"):
+            	webDriver.close();
+            	break;
+            case("PARENTACTIVE"):
+            	webDriver.switchTo().window(window1);
+            	break;
+            case("FRAME"):
+        	    commandLocater1 = testConf[2];
+                webDriver.switchTo().frame(commandLocater1);
+            	break;
+            case("FRAMEDEFAULT"):
+            	webDriver.switchTo().defaultContent();
+            	break;
+
             default:
             }
             if (planisphereError == 1) {
@@ -556,6 +712,7 @@ public class WebTestPlanisphere {
     	bufferedReader.close();
     	fileReader.close();
 	}
+
 
 	public void registTest(String testCaseFilename, String registUserFilename, String resultFilename) throws IOException, FileNotFoundException, InterruptedException {
     	File file = new File(testCaseFilename);
@@ -1040,11 +1197,6 @@ public class WebTestPlanisphere {
 	}
 
 
-
-
-
-
-
 	private void dateFromSet() {
 		String reserveFrom;
 		int reserveYear;
@@ -1081,8 +1233,7 @@ public class WebTestPlanisphere {
 
 	}
 
-	private void weekday(String testTitle, String commandLocater1, String commandLocater2, String commandLocater3,
-			int waitTime) throws InterruptedException {
+	private void weekday(String testTitle, String commandLocater1, int waitTime) throws InterruptedException {
 		Date reserveDate;
 		String testReserveDate;
 		String reserveYear;
@@ -1101,10 +1252,13 @@ public class WebTestPlanisphere {
 		default:
 		}
 
+
 		reserveDate = calendar.getTime();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		testReserveDate = sdf.format(reserveDate);
 		dt = reserveDate;
+
+		String inputText = testReserveDate.substring(0, 10);
 
 		reserveYear = testReserveDate.substring(0, 4);
         WebElement inputBoxYear = webDriver.findElement(By.id(commandLocater1));
@@ -1112,25 +1266,7 @@ public class WebTestPlanisphere {
         inputBoxYear.clear();
         Thread.sleep(waitTime);
 //        reserveYear = reserveYear + "\n";
-        inputBoxYear.sendKeys(reserveYear);
-        Thread.sleep(waitTime);
-
-		reserveMonth = testReserveDate.substring(5, 7);
-        WebElement inputBoxMonth = webDriver.findElement(By.id(commandLocater2));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxMonth));
-        inputBoxMonth.clear();
-        Thread.sleep(waitTime);
-//        reserveMonth = reserveMonth + "\n";
-        inputBoxMonth.sendKeys(reserveMonth);
-        Thread.sleep(waitTime);
-
-		reserveDay = testReserveDate.substring(8, 10);
-        WebElement inputBoxDay = webDriver.findElement(By.id(commandLocater3));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxDay));
-        inputBoxDay.clear();
-        Thread.sleep(waitTime);
-//        reserveDay = reserveDay + "\n";
-        inputBoxDay.sendKeys(reserveDay);
+        inputBoxYear.sendKeys(inputText);
         Thread.sleep(waitTime);
 
 	}
@@ -1175,31 +1311,15 @@ public class WebTestPlanisphere {
 		testReserveDate = sdf.format(reserveDate);
 		dt = reserveDate;
 
+		String inputText = testReserveDate.substring(0, 10);
+
 		reserveYear = testReserveDate.substring(0, 4);
         WebElement inputBoxYear = webDriver.findElement(By.id(commandLocater1));
         wait.until(ExpectedConditions.elementToBeClickable(inputBoxYear));
         inputBoxYear.clear();
         Thread.sleep(waitTime);
 //        reserveYear = reserveYear + "\n";
-        inputBoxYear.sendKeys(reserveYear);
-        Thread.sleep(waitTime);
-
-		reserveMonth = testReserveDate.substring(5, 7);
-        WebElement inputBoxMonth = webDriver.findElement(By.id(commandLocater2));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxMonth));
-        inputBoxMonth.clear();
-        Thread.sleep(waitTime);
-//        reserveMonth = reserveMonth + "\n";
-        inputBoxMonth.sendKeys(reserveMonth);
-        Thread.sleep(waitTime);
-
-		reserveDay = testReserveDate.substring(8, 10);
-        WebElement inputBoxDay = webDriver.findElement(By.id(commandLocater3));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxDay));
-        inputBoxDay.clear();
-        Thread.sleep(waitTime);
-//        reserveDay = reserveDay + "\n";
-        inputBoxDay.sendKeys(reserveDay);
+        inputBoxYear.sendKeys(inputText);
         Thread.sleep(waitTime);
 	}
 
@@ -1243,31 +1363,15 @@ public class WebTestPlanisphere {
 		testReserveDate = sdf.format(reserveDate);
 		dt = reserveDate;
 
+		String inputText = testReserveDate.substring(0, 10);
+
 		reserveYear = testReserveDate.substring(0, 4);
         WebElement inputBoxYear = webDriver.findElement(By.id(commandLocater1));
         wait.until(ExpectedConditions.elementToBeClickable(inputBoxYear));
         inputBoxYear.clear();
         Thread.sleep(waitTime);
 //        reserveYear = reserveYear + "\n";
-        inputBoxYear.sendKeys(reserveYear);
-        Thread.sleep(waitTime);
-
-		reserveMonth = testReserveDate.substring(5, 7);
-        WebElement inputBoxMonth = webDriver.findElement(By.id(commandLocater2));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxMonth));
-        inputBoxMonth.clear();
-        Thread.sleep(waitTime);
-//        reserveMonth = reserveMonth + "\n";
-        inputBoxMonth.sendKeys(reserveMonth);
-        Thread.sleep(waitTime);
-
-		reserveDay = testReserveDate.substring(8, 10);
-        WebElement inputBoxDay = webDriver.findElement(By.id(commandLocater3));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxDay));
-        inputBoxDay.clear();
-        Thread.sleep(waitTime);
-//        reserveDay = reserveDay + "\n";
-        inputBoxDay.sendKeys(reserveDay);
+        inputBoxYear.sendKeys(inputText);
         Thread.sleep(waitTime);
 	}
 
@@ -1311,31 +1415,15 @@ public class WebTestPlanisphere {
 		testReserveDate = sdf.format(reserveDate);
 		dt = reserveDate;
 
+		String inputText = testReserveDate.substring(0, 10);
+
 		reserveYear = testReserveDate.substring(0, 4);
         WebElement inputBoxYear = webDriver.findElement(By.id(commandLocater1));
         wait.until(ExpectedConditions.elementToBeClickable(inputBoxYear));
         inputBoxYear.clear();
         Thread.sleep(waitTime);
 //        reserveYear = reserveYear + "\n";
-        inputBoxYear.sendKeys(reserveYear);
-        Thread.sleep(waitTime);
-
-		reserveMonth = testReserveDate.substring(5, 7);
-        WebElement inputBoxMonth = webDriver.findElement(By.id(commandLocater2));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxMonth));
-        inputBoxMonth.clear();
-        Thread.sleep(waitTime);
-//        reserveMonth = reserveMonth + "\n";
-        inputBoxMonth.sendKeys(reserveMonth);
-        Thread.sleep(waitTime);
-
-		reserveDay = testReserveDate.substring(8, 10);
-        WebElement inputBoxDay = webDriver.findElement(By.id(commandLocater3));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxDay));
-        inputBoxDay.clear();
-        Thread.sleep(waitTime);
-//        reserveDay = reserveDay + "\n";
-        inputBoxDay.sendKeys(reserveDay);
+        inputBoxYear.sendKeys(inputText);
         Thread.sleep(waitTime);
 	}
 
@@ -1379,31 +1467,15 @@ public class WebTestPlanisphere {
 		testReserveDate = sdf.format(reserveDate);
 		dt = reserveDate;
 
+		String inputText = testReserveDate.substring(0, 10);
+
 		reserveYear = testReserveDate.substring(0, 4);
         WebElement inputBoxYear = webDriver.findElement(By.id(commandLocater1));
         wait.until(ExpectedConditions.elementToBeClickable(inputBoxYear));
         inputBoxYear.clear();
         Thread.sleep(waitTime);
 //        reserveYear = reserveYear + "\n";
-        inputBoxYear.sendKeys(reserveYear);
-        Thread.sleep(waitTime);
-
-		reserveMonth = testReserveDate.substring(5, 7);
-        WebElement inputBoxMonth = webDriver.findElement(By.id(commandLocater2));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxMonth));
-        inputBoxMonth.clear();
-        Thread.sleep(waitTime);
-//        reserveMonth = reserveMonth + "\n";
-        inputBoxMonth.sendKeys(reserveMonth);
-        Thread.sleep(waitTime);
-
-		reserveDay = testReserveDate.substring(8, 10);
-        WebElement inputBoxDay = webDriver.findElement(By.id(commandLocater3));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxDay));
-        inputBoxDay.clear();
-        Thread.sleep(waitTime);
-//        reserveDay = reserveDay + "\n";
-        inputBoxDay.sendKeys(reserveDay);
+        inputBoxYear.sendKeys(inputText);
         Thread.sleep(waitTime);
 	}
 
@@ -1447,31 +1519,15 @@ public class WebTestPlanisphere {
 		testReserveDate = sdf.format(reserveDate);
 		dt = reserveDate;
 
+		String inputText = testReserveDate.substring(0, 10);
+
 		reserveYear = testReserveDate.substring(0, 4);
         WebElement inputBoxYear = webDriver.findElement(By.id(commandLocater1));
         wait.until(ExpectedConditions.elementToBeClickable(inputBoxYear));
         inputBoxYear.clear();
         Thread.sleep(waitTime);
 //        reserveYear = reserveYear + "\n";
-        inputBoxYear.sendKeys(reserveYear);
-        Thread.sleep(waitTime);
-
-		reserveMonth = testReserveDate.substring(5, 7);
-        WebElement inputBoxMonth = webDriver.findElement(By.id(commandLocater2));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxMonth));
-        inputBoxMonth.clear();
-        Thread.sleep(waitTime);
-//        reserveMonth = reserveMonth + "\n";
-        inputBoxMonth.sendKeys(reserveMonth);
-        Thread.sleep(waitTime);
-
-		reserveDay = testReserveDate.substring(8, 10);
-        WebElement inputBoxDay = webDriver.findElement(By.id(commandLocater3));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxDay));
-        inputBoxDay.clear();
-        Thread.sleep(waitTime);
-//        reserveDay = reserveDay + "\n";
-        inputBoxDay.sendKeys(reserveDay);
+        inputBoxYear.sendKeys(inputText);
         Thread.sleep(waitTime);
 	}
 
@@ -1515,31 +1571,15 @@ public class WebTestPlanisphere {
 		testReserveDate = sdf.format(reserveDate);
 		dt = reserveDate;
 
+		String inputText = testReserveDate.substring(0, 10);
+
 		reserveYear = testReserveDate.substring(0, 4);
         WebElement inputBoxYear = webDriver.findElement(By.id(commandLocater1));
         wait.until(ExpectedConditions.elementToBeClickable(inputBoxYear));
         inputBoxYear.clear();
         Thread.sleep(waitTime);
 //        reserveYear = reserveYear + "\n";
-        inputBoxYear.sendKeys(reserveYear);
-        Thread.sleep(waitTime);
-
-		reserveMonth = testReserveDate.substring(5, 7);
-        WebElement inputBoxMonth = webDriver.findElement(By.id(commandLocater2));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxMonth));
-        inputBoxMonth.clear();
-        Thread.sleep(waitTime);
-//        reserveMonth = reserveMonth + "\n";
-        inputBoxMonth.sendKeys(reserveMonth);
-        Thread.sleep(waitTime);
-
-		reserveDay = testReserveDate.substring(8, 10);
-        WebElement inputBoxDay = webDriver.findElement(By.id(commandLocater3));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxDay));
-        inputBoxDay.clear();
-        Thread.sleep(waitTime);
-//        reserveDay = reserveDay + "\n";
-        inputBoxDay.sendKeys(reserveDay);
+        inputBoxYear.sendKeys(inputText);
         Thread.sleep(waitTime);
 	}
 
@@ -1583,31 +1623,15 @@ public class WebTestPlanisphere {
 		testReserveDate = sdf.format(reserveDate);
 		dt = reserveDate;
 
+		String inputText = testReserveDate.substring(0, 10);
+
 		reserveYear = testReserveDate.substring(0, 4);
         WebElement inputBoxYear = webDriver.findElement(By.id(commandLocater1));
         wait.until(ExpectedConditions.elementToBeClickable(inputBoxYear));
         inputBoxYear.clear();
         Thread.sleep(waitTime);
 //        reserveYear = reserveYear + "\n";
-        inputBoxYear.sendKeys(reserveYear);
-        Thread.sleep(waitTime);
-
-		reserveMonth = testReserveDate.substring(5, 7);
-        WebElement inputBoxMonth = webDriver.findElement(By.id(commandLocater2));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxMonth));
-        inputBoxMonth.clear();
-        Thread.sleep(waitTime);
-//        reserveMonth = reserveMonth + "\n";
-        inputBoxMonth.sendKeys(reserveMonth);
-        Thread.sleep(waitTime);
-
-		reserveDay = testReserveDate.substring(8, 10);
-        WebElement inputBoxDay = webDriver.findElement(By.id(commandLocater3));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxDay));
-        inputBoxDay.clear();
-        Thread.sleep(waitTime);
-//        reserveDay = reserveDay + "\n";
-        inputBoxDay.sendKeys(reserveDay);
+        inputBoxYear.sendKeys(inputText);
         Thread.sleep(waitTime);
 	}
 
@@ -1651,31 +1675,15 @@ public class WebTestPlanisphere {
 		testReserveDate = sdf.format(reserveDate);
 		dt = reserveDate;
 
+		String inputText = testReserveDate.substring(0, 10);
+
 		reserveYear = testReserveDate.substring(0, 4);
         WebElement inputBoxYear = webDriver.findElement(By.id(commandLocater1));
         wait.until(ExpectedConditions.elementToBeClickable(inputBoxYear));
         inputBoxYear.clear();
         Thread.sleep(waitTime);
 //        reserveYear = reserveYear + "\n";
-        inputBoxYear.sendKeys(reserveYear);
-        Thread.sleep(waitTime);
-
-		reserveMonth = testReserveDate.substring(5, 7);
-        WebElement inputBoxMonth = webDriver.findElement(By.id(commandLocater2));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxMonth));
-        inputBoxMonth.clear();
-        Thread.sleep(waitTime);
-//        reserveMonth = reserveMonth + "\n";
-        inputBoxMonth.sendKeys(reserveMonth);
-        Thread.sleep(waitTime);
-
-		reserveDay = testReserveDate.substring(8, 10);
-        WebElement inputBoxDay = webDriver.findElement(By.id(commandLocater3));
-        wait.until(ExpectedConditions.elementToBeClickable(inputBoxDay));
-        inputBoxDay.clear();
-        Thread.sleep(waitTime);
-//        reserveDay = reserveDay + "\n";
-        inputBoxDay.sendKeys(reserveDay);
+        inputBoxYear.sendKeys(inputText);
         Thread.sleep(waitTime);
 	}
 
@@ -1761,6 +1769,13 @@ public class WebTestPlanisphere {
         Thread.sleep(waitTime);
 	}
 
+	private void eventhref(String commandLocater1, int waitTime) throws InterruptedException {
+		String locater = "//a[@href='" + commandLocater1 + "']";
+		WebElement href = webDriver.findElement(By.xpath(locater));
+		href.click();
+		Thread.sleep(waitTime);
+	}
+
 	private void eventid(String commandLocater1, int waitTime) throws InterruptedException {
 		WebElement elementPos = webDriver.findElement(By.id(commandLocater1));
 		Actions actions = new Actions(webDriver);
@@ -1769,6 +1784,19 @@ public class WebTestPlanisphere {
 		Thread.sleep(waitTime);
 
 		WebElement element = webDriver.findElement(By.id(commandLocater1));
+		wait.until(ExpectedConditions.elementToBeClickable(element));
+		element.click();
+        Thread.sleep(waitTime);
+	}
+
+	private void eventx(String commandLocater1, int waitTime) throws InterruptedException {
+		WebElement elementPos = webDriver.findElement(By.xpath(commandLocater1));
+		Actions actions = new Actions(webDriver);
+		actions.moveToElement(elementPos);
+		actions.perform();
+		Thread.sleep(waitTime);
+
+		WebElement element = webDriver.findElement(By.xpath(commandLocater1));
 		wait.until(ExpectedConditions.elementToBeClickable(element));
 		element.click();
         Thread.sleep(waitTime);
@@ -1865,6 +1893,46 @@ public class WebTestPlanisphere {
 		return resultText;
 	}
 
+	private String testTomorrow(String testTitle, String commandLocater1, int waitTime) throws InterruptedException {
+		Date reserveDate;
+		String testReserveDate;
+		String specText;
+		String resultText;
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(dt);
+		calendar.add(Calendar.DATE, 1);
+		reserveDate = calendar.getTime();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		testReserveDate = sdf.format(reserveDate);
+		dt = reserveDate;
+
+		specText = testReserveDate.substring(0, 10);
+
+		WebElement elementPos = webDriver.findElement(By.id(commandLocater1));
+		Actions actions = new Actions(webDriver);
+		actions.moveToElement(elementPos);
+		actions.perform();
+		Thread.sleep(waitTime);
+
+        WebElement element = webDriver.findElement(By.id(commandLocater1));
+        wait.until(ExpectedConditions.visibilityOf(element));
+        String visibleText = element.getAttribute("value");
+        resultText = testTitle + ", " + "TestResult: " + visibleText + ", Spec: " + specText;
+
+ 		Pattern p2 = Pattern.compile(visibleText);
+ 		Matcher m2 = p2.matcher(specText);
+ 		if (m2.find()) {
+ 			resultText = testDate + ", " + resultText + " :<Visible Text success>";
+ 		} else {
+ 			resultText = testDate + ", " + resultText + " :<Visible Text failed>";
+ 			planisphereError = 1;
+ 		}
+        Thread.sleep(waitTime);
+
+		return resultText;
+	}
+
 	private String testAttribute(String testTitle, String commandLocater1, String inputText, int waitTime) throws InterruptedException {
 		String resultText;
         WebElement element = webDriver.findElement(By.id(commandLocater1));
@@ -1936,7 +2004,7 @@ public class WebTestPlanisphere {
         wait.until(ExpectedConditions.visibilityOf(element));
         visibleText = element.getText();
         resultText = testTitle + ", " + "TestResult: " + visibleText + ", Spec: " + specText;
-        ;
+
  		Pattern p2 = Pattern.compile(visibleText);
  		Matcher m2 = p2.matcher(specText);
  		if (m2.find()) {
@@ -1946,6 +2014,28 @@ public class WebTestPlanisphere {
  			planisphereError = 1;
  		}
         Thread.sleep(waitTime);
+		return resultText;
+	}
+
+	private String testDropDownSelect(String testTitle, String commandLocater1, String inputText, int waitTime) throws InterruptedException {
+		String resultText;
+		String selectText;
+
+		WebElement element = webDriver.findElement(By.id(commandLocater1));
+		Actions actions = new Actions(webDriver);
+		actions.moveToElement(element);
+		actions.perform();
+		Thread.sleep(1000);
+        Select output_Select = new Select(webDriver.findElement(By.id(commandLocater1)));
+
+        selectText = output_Select.getFirstSelectedOption().getText();
+//        output_Select.selectByVisibleText(inputText);
+        if(selectText.equals(inputText)) {
+        	resultText = testDate + ", " + inputText + " :<is Selected success>";
+        }else {
+        	resultText = testDate + ", " + inputText + " :<is not Selected failed>";
+        	planisphereError = 1;
+        }
 		return resultText;
 	}
 
@@ -1971,6 +2061,7 @@ public class WebTestPlanisphere {
 	}
 
 	private String testPrice(String testTitle, String commandLocater1, int price, int waitTime) {
+		String priceText;
 		int priceData;
 //		int up25Price = 8750;
 //		int normalPrice = 7000;
@@ -1979,31 +2070,14 @@ public class WebTestPlanisphere {
 
         WebElement element = webDriver.findElement(By.id(commandLocater1));
         wait.until(ExpectedConditions.visibilityOf(element));
-        priceData = Integer.valueOf(element.getText());
+        priceText = element.getText();
+        priceText = priceText.replace("円", "");
+        priceText = priceText.replace("（税込み）", "");
+        priceText = priceText.replace("合計", "");
+        priceText = priceText.replace(",", "").trim();
 
-//		if(breakFastValue.equals("on")) {
-//			up25Price = up25Price + 1000;
-//			normalPrice = normalPrice + 1000;
-//		}
-//		if(planAvalue == null) {
-//
-//		}else {
-//			if(planAvalue.equals("on")) {
-//				up25Price = up25Price + 1000;
-//				normalPrice = normalPrice + 1000;
-//			}
-//
-//		}
-//		if(planBvalue == null) {
-//
-//		}else {
-//			if(planBvalue.equals("on")) {
-//				up25Price = up25Price + 1000;
-//				normalPrice = normalPrice + 1000;
-//			}
-//
-//		}
-//		calcPrice = (termValue * normalPrice * headCountValue) + (termValueWeekEnd * up25Price * headCountValue);
+        priceData = Integer.valueOf(priceText);
+
         calcPrice = price;
         if(priceData == calcPrice) {
 			testResult = testDate + ", " + testTitle + ", Spec: " + calcPrice + ", Result: " + priceData + ", <PriceTest success>";
@@ -2014,39 +2088,39 @@ public class WebTestPlanisphere {
 		return testResult;
 	}
 
-	private String testTerm(String testTitle, String commandLocater1, String commandLocater2, String commandLocater3, int term,int waitTime) throws InterruptedException {
+	private String testTerm(String testTitle, String commandLocater1, int term,int waitTime) throws InterruptedException {
 		String resultText;
+		String termText;
+		String stay = String.valueOf(term) + "泊";
 
-        WebElement elementReserveFrom = webDriver.findElement(By.id(commandLocater1));
-        wait.until(ExpectedConditions.visibilityOf(elementReserveFrom));
-        String reserveFrom = elementReserveFrom.getText();
-
-        WebElement elementReserveTo = webDriver.findElement(By.id(commandLocater2));
-        wait.until(ExpectedConditions.visibilityOf(elementReserveTo));
-        String reserveTo = elementReserveTo.getText();
-
-        WebElement elementTerm = webDriver.findElement(By.id(commandLocater3));
+        WebElement elementTerm = webDriver.findElement(By.id(commandLocater1));
         wait.until(ExpectedConditions.visibilityOf(elementTerm));
-        int termData = Integer.valueOf(elementTerm.getText());
+        termText = elementTerm.getText();
 
-        if(reserveFrom.equals(dateFrom)) {
-        	resultText = testDate + ", " + testTitle + ", ReserveFrom Spec: " + dateFrom + ", ReserveFrom Result: "+ reserveFrom + ", :<ReserveFromTest success>" + "\n";
+        Pattern pFrom = Pattern.compile(dateFrom);
+        Matcher mFrom = pFrom.matcher(termText);
+        if(mFrom.find()) {
+        	resultText = testDate + ", " + testTitle + ", ReserveFrom Spec: " + dateFrom + ", ReserveFrom Result: "+ termText + ", :<ReserveFromTest success>" + "\n";
         }else {
-        	resultText = testDate + ", " + testTitle + ", ReserveFrom Spec: " + dateFrom + ", ReserveFrom Result: "+ reserveFrom + ", :<ReserveFromTest fail>" + "\n";
+        	resultText = testDate + ", " + testTitle + ", ReserveFrom Spec: " + dateFrom + ", ReserveFrom Result: "+ termText + ", :<ReserveFromTest fail>" + "\n";
  			planisphereError = 1;
         }
 
-        if(reserveTo.equals(dateTo)) {
-        	resultText = resultText + testDate + ", " + testTitle + ", ReserveTo Spec: " + dateTo + ", ReserveTo Result: "+ reserveTo + ", :<ReserveToTest success>" + "\n";
+        Pattern pTo = Pattern.compile(dateTo);
+        Matcher mTo = pTo.matcher(termText);
+        if(mTo.find()) {
+        	resultText = resultText + testDate + ", " + testTitle + ", ReserveTo Spec: " + dateTo + ", ReserveTo Result: "+ termText + ", :<ReserveToTest success>" + "\n";
         }else {
-        	resultText = resultText + testDate + ", " + testTitle + ", ReserveTo Spec: " + dateTo + ", ReserveTo Result: "+ reserveTo + ", :<ReserveToTest fail>" + "\n";
+        	resultText = resultText + testDate + ", " + testTitle + ", ReserveTo Spec: " + dateTo + ", ReserveTo Result: "+ termText + ", :<ReserveToTest fail>" + "\n";
  			planisphereError = 1;
         }
 
-        if(termData == term) {
-        	resultText = resultText + testDate + ", " + testTitle + ", Spec: " + term + ", Result: "+ termData + ", :<ReserveTermTest success>" + "\n";
+        Pattern pStay = Pattern.compile(stay);
+        Matcher mStay = pStay.matcher(termText);
+        if(mStay.find()) {
+        	resultText = resultText + testDate + ", " + testTitle + ", Spec: " + stay + ", Result: "+ termText + ", :<ReserveTermTest success>";
         }else {
-        	resultText = resultText + testDate + ", " + testTitle + ", Spec: " + term + ", Result: "+ termData + ", :<ReserveTermTest fail>" + "\n";
+        	resultText = resultText + testDate + ", " + testTitle + ", Spec: " + stay + ", Result: "+ termText + ", :<ReserveTermTest fail>";
  			planisphereError = 1;
         }
         Thread.sleep(waitTime);
@@ -2270,6 +2344,29 @@ public class WebTestPlanisphere {
 		return resultText;
 	}
 
+	private String testTextID(String commandLocater1, String inputText, int waitTime, String testTitle) {
+		String regex;
+		String indicaterText;
+		String resultText;
+		Date dt = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+        WebElement element = webDriver.findElement(By.id(commandLocater1));
+//		WebElement element = webDriver.findElement(By.id("plan-name"));
+        wait.until(ExpectedConditions.visibilityOf(element));
+        indicaterText = element.getText();
+        resultText = testDate + ", " + testTitle + ", " + "TestResult: " + indicaterText + ", Spec: " + inputText;
+ 		Pattern p2 = Pattern.compile(inputText);
+ 		Matcher m2 = p2.matcher(indicaterText);
+ 		if (m2.find()) {
+ 			resultText = resultText + " :<VisibleText success>";
+ 		} else {
+ 			planisphereError = 1;
+ 			resultText = resultText + " :<VisibleText failed>";
+ 		}
+		return resultText;
+	}
+
 	private String testIndicaterID(String commandLocater, String indicaterValueSpec, int waitTime, String testTitle) {
 		String regex;
 		String indicaterText;
@@ -2278,6 +2375,7 @@ public class WebTestPlanisphere {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
         WebElement element = webDriver.findElement(By.id(commandLocater));
+//		WebElement element = webDriver.findElement(By.id("plan-name"));
         wait.until(ExpectedConditions.visibilityOf(element));
         indicaterText = element.getText();
         resultText = sdf.format(dt) + ", " + testTitle + ", " + "TestResult: " + indicaterText + ", Spec: " + indicaterValueSpec;
@@ -2292,7 +2390,6 @@ public class WebTestPlanisphere {
  		}
 		return resultText;
 	}
-
 
 	private String testContentsList(String testTitle, String commandLocater1, int dataCount, String[][] planVisible, int waitTime) throws InterruptedException {
 		String resultText;
@@ -2320,7 +2417,5 @@ public class WebTestPlanisphere {
 		Thread.sleep(waitTime);
 		return resultText;
 	}
-
-
 
 }
