@@ -658,7 +658,8 @@ public class WebTestPlanisphere {
             case("TESTCONTACT"):
             	commandLocater1 = testConf[2];
             	testTitle = testConf[1];
-            	if(contact.length() == 0) {
+            	indicaterValueSpec = testConf[3];
+            	if(indicaterValueSpec.equals("希望しない")) {
             		indicaterValueSpec = testConf[3];
             	}else {
             		indicaterValueSpec = testConf[3] + "：" + contact;
