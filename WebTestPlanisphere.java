@@ -468,6 +468,13 @@ public class WebTestPlanisphere {
                 waitTime = Integer.valueOf(testConf[7]);
                 textSet(commandLocater1, setText, waitTime);
                 guestValue = setText;
+                break;
+            case("GETUSERINFO"):
+            	commandLocater1 = testConf[2];
+            	commandLocater2 = testConf[3];
+            	commandLocater3 = testConf[4];
+                waitTime = Integer.valueOf(testConf[7]);
+            	getuserInfo(commandLocater1, commandLocater2, commandLocater3, waitTime);
             	break;
             case("TEXTSETID"):
             	commandLocater1 = testConf[2];
@@ -484,6 +491,11 @@ public class WebTestPlanisphere {
             	commandLocater1 = testConf[2];
             	waitTime = Integer.valueOf(testConf[7]);
             	eventx(commandLocater1, waitTime);
+            	break;
+            case("EVENTCSSSELECTOR"):
+            	commandLocater1 = testConf[2];
+            	waitTime = Integer.valueOf(testConf[7]);
+            	eventCSS(commandLocater1, waitTime);
             	break;
             case("EVENTLINK"):
             	commandLocater1 = testConf[2];
@@ -664,6 +676,13 @@ public class WebTestPlanisphere {
             	}else {
             		indicaterValueSpec = testConf[3] + "：" + contact;
             	}
+            	if((indicaterValueSpec.equals("メール")&&contact.length() == 0)) {
+            		indicaterValueSpec = testConf[3] + "：" + address;
+            	}
+            	if((indicaterValueSpec.equals("電話")&&contact.length() == 0)) {
+            		indicaterValueSpec = testConf[3] + "：" + tel;
+            	}
+
             	waitTime = Integer.valueOf(testConf[7]);
             	testResult = testTextID(commandLocater1, indicaterValueSpec, waitTime, testTitle);
             	System.out.println(testResult);
@@ -713,6 +732,7 @@ public class WebTestPlanisphere {
     	bufferedReader.close();
     	fileReader.close();
 	}
+
 
 
 	public void registTest(String testCaseFilename, String registUserFilename, String resultFilename) throws IOException, FileNotFoundException, InterruptedException {
@@ -1195,6 +1215,22 @@ public class WebTestPlanisphere {
     	resultFile.close();
     	inputStreamReader.close();
 
+	}
+
+	private void getuserInfo(String commandLocater1, String commandLocater2, String commanLocater3, int waitTime) throws InterruptedException {
+        WebElement addressText = webDriver.findElement(By.id(commandLocater1));
+        wait.until(ExpectedConditions.visibilityOf(addressText));
+        address = addressText.getText();
+
+        WebElement telText = webDriver.findElement(By.id(commandLocater1));
+        wait.until(ExpectedConditions.visibilityOf(telText));
+		tel = telText.getText();
+
+        WebElement nameText = webDriver.findElement(By.id(commandLocater1));
+        wait.until(ExpectedConditions.visibilityOf(nameText));
+		username = telText.getText();
+
+		Thread.sleep(waitTime);
 	}
 
 
