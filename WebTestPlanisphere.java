@@ -288,6 +288,7 @@ public class WebTestPlanisphere {
         int price;
         String testResult;
         String indicaterValueSpec;
+        String contactType;
         String window1 = null;
         String window2 = null;
 
@@ -476,6 +477,19 @@ public class WebTestPlanisphere {
                 waitTime = Integer.valueOf(testConf[7]);
             	getuserInfo(commandLocater1, commandLocater2, commandLocater3, waitTime);
             	break;
+            case("GETRESERVEUSER"):
+            	commandLocater1 = testConf[2];
+            	commandLocater2 = testConf[3];
+                waitTime = Integer.valueOf(testConf[7]);
+                contactType = getReserveUser(commandLocater1, commandLocater2, waitTime);
+                if(contactType.equals("メールでのご連絡")) {
+                	commandLocater3 = testConf[4];
+                	email = getText(commandLocater3, waitTime);
+                }else if(contactType.equals("電話でのご連絡")) {
+                	commandLocater3 = testConf[5];
+                	tel = getText(commandLocater3, waitTime);
+                }
+            	break;
             case("TEXTSETID"):
             	commandLocater1 = testConf[2];
         	    setText = testConf[3];
@@ -632,6 +646,9 @@ public class WebTestPlanisphere {
             	commandLocater1 = testConf[2];
                 testTitle = testConf[1];
                 indicaterValueSpec = testConf[3];
+                if(indicaterValueSpec.length() == 0) {
+                	indicaterValueSpec = username;
+                }
                 waitTime = Integer.valueOf(testConf[7]);
                 testResult = testTextID(commandLocater1, indicaterValueSpec, waitTime, testTitle);
                 System.out.println(testResult);
@@ -673,13 +690,11 @@ public class WebTestPlanisphere {
             	indicaterValueSpec = testConf[3];
             	if(indicaterValueSpec.equals("希望しない")) {
             		indicaterValueSpec = testConf[3];
-            	}else {
-            		indicaterValueSpec = testConf[3] + "：" + contact;
             	}
-            	if((indicaterValueSpec.equals("メール")&&contact.length() == 0)) {
-            		indicaterValueSpec = testConf[3] + "：" + address;
+            	if((indicaterValueSpec.equals("メール"))) {
+            		indicaterValueSpec = testConf[3] + "：" + email;
             	}
-            	if((indicaterValueSpec.equals("電話")&&contact.length() == 0)) {
+            	if((indicaterValueSpec.equals("電話"))) {
             		indicaterValueSpec = testConf[3] + "：" + tel;
             	}
 
@@ -732,8 +747,6 @@ public class WebTestPlanisphere {
     	bufferedReader.close();
     	fileReader.close();
 	}
-
-
 
 	public void registTest(String testCaseFilename, String registUserFilename, String resultFilename) throws IOException, FileNotFoundException, InterruptedException {
     	File file = new File(testCaseFilename);
@@ -1809,6 +1822,8 @@ public class WebTestPlanisphere {
 	private void eventhref(String commandLocater1, int waitTime) throws InterruptedException {
 		String locater = "//a[@href='" + commandLocater1 + "']";
 		WebElement href = webDriver.findElement(By.xpath(locater));
+        wait.until(ExpectedConditions.visibilityOf(href));
+
 		href.click();
 		Thread.sleep(waitTime);
 	}
@@ -1889,6 +1904,32 @@ public class WebTestPlanisphere {
         Thread.sleep(waitTime);
 	}
 
+
+	private String getReserveUser(String commandLocater1, String commandLocater2, int waitTime) {
+		String contactText = null;
+
+		WebElement name = webDriver.findElement(By.id(commandLocater1));
+        wait.until(ExpectedConditions.visibilityOf(name));
+        username = name.getAttribute("value");
+
+		WebElement contact = webDriver.findElement(By.id(commandLocater2));
+        wait.until(ExpectedConditions.visibilityOf(contact));
+        Select select = new Select(contact);
+        List<WebElement> options = select.getAllSelectedOptions();
+        for(WebElement option: options) {
+        	contactText = option.getText();
+        }
+		return contactText;
+	}
+
+	private String getText(String commandLocater3, int waitTime) {
+		String getText;
+		WebElement text = webDriver.findElement(By.id(commandLocater3));
+        wait.until(ExpectedConditions.visibilityOf(text));
+        getText = text.getAttribute("value");
+		return getText;
+	}
+
 	private String testToday(String testTitle, String commandLocater1, String commandLocater2, String commandLocater3,
 			int waitTime) throws InterruptedException {
 		String resultText;
@@ -1929,6 +1970,7 @@ public class WebTestPlanisphere {
         Thread.sleep(waitTime);
 		return resultText;
 	}
+
 
 	private String testTomorrow(String testTitle, String commandLocater1, int waitTime) throws InterruptedException {
 		Date reserveDate;
@@ -1986,6 +2028,7 @@ public class WebTestPlanisphere {
         Thread.sleep(waitTime);
 		return resultText;
 	}
+
 
 	private String testAttributeNull(String testTitle, String commandLocater1, int waitTime) throws InterruptedException {
 		String resultText;
@@ -2394,7 +2437,7 @@ public class WebTestPlanisphere {
         indicaterText = element.getText();
         resultText = testDate + ", " + testTitle + ", " + "TestResult: " + indicaterText + ", Spec: " + inputText;
  		Pattern p2 = Pattern.compile(inputText);
- 		Matcher m2 = p2.matcher(indicaterText);
+ 		Matcher m2 = p2.matcher(resultText);
  		if (m2.find()) {
  			resultText = resultText + " :<VisibleText success>";
  		} else {
