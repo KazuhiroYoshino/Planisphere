@@ -614,12 +614,13 @@ public class WebTestPlanisphere {
                 commandLocater1 = testConf[2];
                 inputText = testConf[3];
                 waitTime = Integer.valueOf(testConf[7]);
-                if((inputText.length() == 0)&&(guestValue.length() != 0)) {
-                    testResult = testGuesName(testTitle, commandLocater1, waitTime);
+                if(inputText.length() == 0) {
+                	inputText = username;
+                    testResult = testTextID(commandLocater1, inputText, waitTime, testTitle);
                     System.out.println(testResult);
                     pw.print(testResult);
                 }else {
-                    testResult = testAttribute(testTitle, commandLocater1, inputText, waitTime);
+                    testResult = testTextID(commandLocater1, inputText, waitTime, testTitle);
                     System.out.println(testResult);
                     pw.print(testResult);
                 }
@@ -646,9 +647,9 @@ public class WebTestPlanisphere {
             	commandLocater1 = testConf[2];
                 testTitle = testConf[1];
                 indicaterValueSpec = testConf[3];
-                if(indicaterValueSpec.length() == 0) {
-                	indicaterValueSpec = username;
-                }
+//                if(indicaterValueSpec.length() == 0) {
+//                	indicaterValueSpec = username;
+//                }
                 waitTime = Integer.valueOf(testConf[7]);
                 testResult = testTextID(commandLocater1, indicaterValueSpec, waitTime, testTitle);
                 System.out.println(testResult);
@@ -2282,6 +2283,7 @@ public class WebTestPlanisphere {
 		return resultText;
 	}
 
+
 	private String testGuesName(String testTitle, String commandLocater1, int waitTime) throws InterruptedException {
 		String resultText;
         WebElement element = webDriver.findElement(By.id(commandLocater1));
@@ -2296,6 +2298,7 @@ public class WebTestPlanisphere {
         Thread.sleep(waitTime);
 		return resultText;
 	}
+
 
 	private String testLogin(String commandLocater1, String commandLocater2, String commandLocater3, String loginId, String loginPass, String specText,
 			int waitTime) throws InterruptedException {
